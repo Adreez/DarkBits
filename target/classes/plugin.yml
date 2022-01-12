@@ -1,5 +1,5 @@
 name: DarkBits
-version: '${project.version}'
+version: 'DEV-1.0.1'
 main: sk.adr3ez.darkbits.DarkBits
 api-version: 1.18
 softdepend: [ PlaceholderAPI ]

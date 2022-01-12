@@ -1,4 +1,4 @@
-package sk.adr3ez.darkbits.utils.sql;
+package sk.adr3ez.darkbits.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,21 +6,20 @@ import java.sql.SQLException;
 
 public class MySQL {
 
-    private String host = "localhost";
-    private String port = "3306";
-    private String database = "darkbits";
-    private String username = "";
-    private String password = "";
-    private boolean useSSL = false;
-
     private Connection connection;
 
     public boolean isConnected() {
-        return (connection == null ? false : true);
+        return (connection != null);
     }
 
     public void connect() throws ClassNotFoundException, SQLException {
         if (!isConnected()) {
+            String password = "";
+            boolean useSSL = false;
+            String database = "darkbits";
+            String username = "root";
+            String port = "3306";
+            String host = "localhost";
             connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + useSSL, username, password);
         }
     }
@@ -33,7 +32,6 @@ public class MySQL {
                 e.printStackTrace();
             }
         }
-
     }
 
     public Connection getConnection() {
