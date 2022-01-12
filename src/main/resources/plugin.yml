@@ -1,0 +1,6 @@
+name: DarkBits
+version: '${project.version}'
+main: sk.adr3ez.darkbits.DarkBits
+api-version: 1.18
+softdepend: [ PlaceholderAPI ]
+authors: [ Adr3ez_ ]
