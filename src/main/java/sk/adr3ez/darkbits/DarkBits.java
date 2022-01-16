@@ -2,6 +2,7 @@ package sk.adr3ez.darkbits;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import sk.adr3ez.darkbits.listeners.playerJoin;
 import sk.adr3ez.darkbits.sql.MySQL;
 import sk.adr3ez.darkbits.sql.SQLGetter;
 import sk.adr3ez.darkbits.utils.BitsCmd;
@@ -19,7 +20,9 @@ public final class DarkBits extends JavaPlugin {
         sql = new MySQL();
         sqldata = new SQLGetter();
 
-        this.getCommand("bits").setExecutor(new BitsCmd());
+        getCommand("bits").setExecutor(new BitsCmd());
+        getServer().getPluginManager().registerEvents(new playerJoin(), this);
+
         try {
             sql.connect();
         } catch (ClassNotFoundException | SQLException e) {

@@ -19,7 +19,7 @@ public class SQLGetter {
     public void createTable() {
         PreparedStatement ps;
         try {
-            ps = DarkBits.sql.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (NAME VARCHAR(100),UUID VARCHAR(100),BITS INT(100),PRIMARY KEY (NAME))");
+            ps = DarkBits.sql.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (NICK VARCHAR(100), UUID VARCHAR(100), BITS DOUBLE, PRIMARY KEY (NICK))");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -29,11 +29,11 @@ public class SQLGetter {
     public void createPlayer(Player player) {
         try {
             UUID uuid = player.getUniqueId();
-            if (!exists(uuid)) {
-                PreparedStatement ps2 = DarkBits.sql.getConnection().prepareStatement("INSERT IGNORE INTO " + table + " (NAME,UUID,BITS) VALUES (?,?,?)");
+            if (!exists(player.getName())) {
+                PreparedStatement ps2 = DarkBits.sql.getConnection().prepareStatement("INSERT IGNORE INTO " + table + " (NICK,UUID,BITS) VALUES (?,?,?)");
                 ps2.setString(1, player.getName());
                 ps2.setString(2, uuid.toString());
-                ps2.setString(3, "");
+                ps2.setDouble(3, 0);
                 ps2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -41,15 +41,12 @@ public class SQLGetter {
         }
     }
 
-    public boolean exists(UUID uuid) {
+    public boolean exists(String nick) {
         try {
-            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
-            ps.setString(1, uuid.toString());
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT * FROM " + table + " WHERE NICK=?");
+            ps.setString(1, nick);
             ResultSet results = ps.executeQuery();
-            if (results.next()) {
-                return true;
-            }
-            return false;
+            return results.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -58,13 +55,10 @@ public class SQLGetter {
 
     public boolean existsNick(String nick) {
         try {
-            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT * FROM " + table + " WHERE NICK=?");
             ps.setString(1, nick);
             ResultSet results = ps.executeQuery();
-            if (results.next()) {
-                return true;
-            }
-            return false;
+            return results.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,10 +66,10 @@ public class SQLGetter {
     }
 
 
-    public void setBits(String nick, int bits) {
+    public void setBits(String nick, double bits) {
         try {
             PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET BITS=? WHERE NICK=?");
-            ps.setInt(1, (bits));
+            ps.setDouble(1, bits);
             ps.setString(2, nick);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -83,11 +77,22 @@ public class SQLGetter {
         }
     }
 
-    public void removePoints(UUID uuid, int points) {
+    public void addBits(String nick, double bits) {
         try {
-            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET BITS=? WHERE UUID=?");
-            ps.setInt(1, (getBits(uuid) - points));
-            ps.setString(2, uuid.toString());
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET BITS=? WHERE NICK=?");
+            ps.setDouble(1, getBits(nick) + bits);
+            ps.setString(2, nick);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeBits(String nick, double bits) {
+        try {
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET BITS=? WHERE NICK=?");
+            ps.setDouble(1, (getBits(nick) - bits));
+            ps.setString(2, nick);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -95,16 +100,16 @@ public class SQLGetter {
         }
     }
 
-    public int getBits(UUID uuid) {
+    public double getBits(String nick) {
         try {
-            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT POINTS FROM " + table + " WHERE UUID=?");
-            ps.setString(1, uuid.toString());
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT BITS FROM " + table + " WHERE NICK=?");
+            ps.setString(1, nick);
             ResultSet rs = ps.executeQuery();
-            int points;
+            double bits;
 
             if (rs.next()) {
-                points = rs.getInt("POINTS");
-                return points;
+                bits = rs.getDouble("BITS");
+                return bits;
             }
 
 
