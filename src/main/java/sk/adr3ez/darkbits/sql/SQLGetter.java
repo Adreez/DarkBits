@@ -13,13 +13,10 @@ public class SQLGetter {
 
     String table = "data";
 
-    /*
-     * NAME UUID Credits Silvers
-     */
     public void createTable() {
         PreparedStatement ps;
         try {
-            ps = DarkBits.sql.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (NICK VARCHAR(100), UUID VARCHAR(100), BITS DOUBLE, PRIMARY KEY (NICK))");
+            ps = DarkBits.sql.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (NICK VARCHAR(100), UUID VARCHAR(100), BITS DOUBLE, CANRECEIVE VARCHAR(5), TIMEMILLIS INT(100), PRIMARY KEY (NICK))");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -30,10 +27,12 @@ public class SQLGetter {
         try {
             UUID uuid = player.getUniqueId();
             if (!exists(player.getName())) {
-                PreparedStatement ps2 = DarkBits.sql.getConnection().prepareStatement("INSERT IGNORE INTO " + table + " (NICK,UUID,BITS) VALUES (?,?,?)");
+                PreparedStatement ps2 = DarkBits.sql.getConnection().prepareStatement("INSERT IGNORE INTO " + table + " (NICK,UUID,BITS,CANRECEIVE,TIMEMILLIS,TIMEMIDNIGHT) VALUES (?,?,?,?,?)");
                 ps2.setString(1, player.getName());
                 ps2.setString(2, uuid.toString());
                 ps2.setDouble(3, 0);
+                ps2.setString(4, "false");
+                ps2.setLong(5, 0);
                 ps2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -53,19 +52,6 @@ public class SQLGetter {
         return false;
     }
 
-    public boolean existsNick(String nick) {
-        try {
-            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT * FROM " + table + " WHERE NICK=?");
-            ps.setString(1, nick);
-            ResultSet results = ps.executeQuery();
-            return results.next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-
     public void setBits(String nick, double bits) {
         try {
             PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET BITS=? WHERE NICK=?");
@@ -76,6 +62,36 @@ public class SQLGetter {
             e.printStackTrace();
         }
     }
+
+    public boolean canReceive(String nick) {
+        try {
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT CANRECEIVE FROM " + table + " WHERE NICK=?");
+            ps.setString(1, nick);
+            ResultSet rs = ps.executeQuery();
+            String canreceive;
+            if (rs.next()) {
+                canreceive = rs.getString("CANRECEIVE");
+                if (canreceive.equals("false"))
+                    return false;
+                if (canreceive.equals("true"))
+                    return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /*public void setCanReceive(String nick, boolean canreceive) {
+        try {
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET CANRECEIVE=? WHERE NICK=?");
+            ps.setBoolean(1, canreceive);
+            ps.setString(2, nick);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }*/
 
     public void addBits(String nick, double bits) {
         try {
@@ -106,16 +122,40 @@ public class SQLGetter {
             ps.setString(1, nick);
             ResultSet rs = ps.executeQuery();
             double bits;
-
             if (rs.next()) {
                 bits = rs.getDouble("BITS");
                 return bits;
             }
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
+    }
+
+
+    public double getTimeMillis(String nick) {
+        try {
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("SELECT TIMEMILLIS FROM " + table + " WHERE NICK=?");
+            ps.setString(1, nick);
+            ResultSet rs = ps.executeQuery();
+            double bits;
+            if (rs.next()) {
+                bits = rs.getDouble("TIMEMILLIS");
+                return bits;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public void setTimeMillis(String nick, long millis) {
+        try {
+            PreparedStatement ps = DarkBits.sql.getConnection().prepareStatement("UPDATE " + table + " SET TIMEMILLIS=? WHERE NICK=?");
+            ps.setLong(1, millis);
+            ps.setString(2, nick);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

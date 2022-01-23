@@ -7,3 +7,5 @@ authors: [ Adr3ez_ ]
 commands:
   bits:
     description: Default command to plugin
+  daily:
+    description: Just daily command
