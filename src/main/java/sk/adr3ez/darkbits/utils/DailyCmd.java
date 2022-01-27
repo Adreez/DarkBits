@@ -30,7 +30,17 @@ public class DailyCmd implements CommandExecutor {
         } else {
             if (args[0].equalsIgnoreCase("reset")) {
                 DarkBits.sqldata.setTimeMillis(sender.getName(), 0);
-            } else {
+            }else if (args[0].equalsIgnoreCase("open")) {
+                if (args.length == 2) {
+                    if (DarkBits.invyml.get().getString("Inventories." + args[1]) != null) {
+
+                    }else {
+                        sender.sendMessage("Inventar neexistuje!");
+                    }
+                }else {
+                    sender.sendMessage("Usage");
+                }
+            }else {
                 sender.sendMessage("Command doesnt exist!");
             }
         }
