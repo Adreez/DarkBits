@@ -33,7 +33,7 @@ public class DailyCmd implements CommandExecutor {
             }else if (args[0].equalsIgnoreCase("open")) {
                 if (args.length == 2) {
                     if (DarkBits.invyml.get().getString("Inventories." + args[1]) != null) {
-
+                        sender.sendMessage("One day it maybe");
                     }else {
                         sender.sendMessage("Inventar neexistuje!");
                     }
